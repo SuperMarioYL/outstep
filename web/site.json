@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "name": "outstep",
+  "github": "https://github.com/SuperMarioYL/outstep",
+  "host": "outstep.lei6393.com",
+  "lang": { "primary": "zh", "toggle": true },
+  "accent": ["#e6a144", "#d97706", "#92400e"],
+  "hero": {
+    "eyebrow": {
+      "zh": "部署前 · 自托管 · 12 个场景",
+      "en": "pre-deploy · self-hosted · 12 scenarios"
+    },
+    "headline": {
+      "zh": "上线前，先知道\n你的模型会不会越狱",
+      "en": "Know if your model\nescapes before you ship"
+    },
+    "sub": {
+      "zh": "给挂上工具的国产开放权重模型排好 12 个越权场景和一份可机读的围堵报告——上线前一条命令校验全部场景、预览报告格式。",
+      "en": "Line up 12 escape scenarios and a machine-readable containment report for a tooled-up open-weight CN model — one command before deploy validates every scenario and previews the report."
+    },
+    "command": "outstep run --dry --battery canary_v1",
+    "cta": { "zh": "快速开始", "en": "Quickstart" },
+    "ctaGithub": { "zh": "GitHub", "en": "GitHub" },
+    "scroll": { "zh": "看优势", "en": "See advantages" }
+  },
+  "advantages": [
+    {
+      "title": {
+        "zh": "12 个越权场景，上线前摆好",
+        "en": "12 escape scenarios, lined up before you ship"
+      },
+      "body": {
+        "zh": "把诱使模型越权的 12 个场景和各自的安全边界一次摆出来——一条命令、10 秒校验，无需模型。",
+        "en": "Lay out 12 scenarios that invite the model to overreach, each with its own safety boundary — one command, 10 seconds, no model needed."
+      },
+      "chips": ["› 12 个越权场景", "› 逐场景安全边界", "› 无需模型即可校验"]
+    },
+    {
+      "title": {
+        "zh": "围堵报告：越权分 + 逐动作判定",
+        "en": "Containment report: escape score + per-action verdict"
+      },
+      "body": {
+        "zh": "每份报告给你一个越权分（n/12）、每个场景的逐动作放行/越权判定、和一个可复现的 sha256 摘要——能机读，能塞进安全评审。",
+        "en": "Every report gives an escape score (n/12), a per-scenario per-action pass/fail, and a reproducible sha256 digest — machine-readable and ready for a security review."
+      },
+      "chips": ["› 越权分 n/12", "› 逐动作放行/越权", "› JSON / Markdown 输出"]
+    },
+    {
+      "title": {
+        "zh": "上线前体检，不是运行时拦门",
+        "en": "A pre-deploy checkup, not a runtime gate"
+      },
+      "body": {
+        "zh": "把越权检查前移到上线之前——固定一组场景、固定一份报告格式，上线前就备好。门归门，体检归体检。",
+        "en": "Move the escape check before deploy — fix one battery and one report format, ready before you ship. A gate is a gate; a checkup is a checkup."
+      },
+      "chips": ["› 部署前介入", "› 固定场景 + 固定格式", "› 不替代运行时门"]
+    },
+    {
+      "title": {
+        "zh": "诚实信号：倾向，不是保证",
+        "en": "An honest signal: tendency, not proof"
+      },
+      "body": {
+        "zh": "每份报告都标着「tendency, not proof」——给你一个可复现的倾向信号，从不替你盖章「安全」。只在你本机自托管的模型上跑，不碰托管 API。",
+        "en": "Every report is stamped 'tendency, not proof' — a reproducible tendency signal, never a 'safe' stamp. It runs only on models you self-host; it never touches hosted APIs."
+      },
+      "chips": ["› 标注 tendency, not proof", "› 仅自托管模型", "› MIT · 免费 OSS"]
+    }
+  ],
+  "scene": {
+    "kind": "hub-nodes",
+    "nodes": ["Kimi-K3", "DeepSeek-V4", "Qwen3.8"]
+  },
+  "cta": {
+    "headline": {
+      "zh": "上线前，先摆好这 12 个场景",
+      "en": "Line up the 12 scenarios before you ship"
+    },
+    "sub": {
+      "zh": "三条命令、10 秒，看清每个越权场景盯的是哪类越权。",
+      "en": "Three commands, ten seconds — see which out-of-scope action each scenario watches."
+    },
+    "button": { "zh": "在 GitHub 上查看", "en": "View on GitHub" }
+  },
+  "footer": {
+    "tag": {
+      "zh": "MIT · 自托管 · 免费 OSS · 仅探针你自托管的模型",
+      "en": "MIT · self-hosted · free OSS · probes only models you self-host"
+    }
+  }
+}
