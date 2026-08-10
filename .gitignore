@@ -1,0 +1,46 @@
+# byte-compiled / optimized
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# packaging / build
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# virtual envs
+.venv/
+venv/
+env/
+.python-version
+
+# test / coverage caches
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# local dev tooling config
+.claude/
+CLAUDE.md
+
+# build scratch
+PUBLISH_BLOCKED.md
+BUILD_SETUP_NEXT_STEPS.md
+.spawn.*
+.builder_*
+.build_metadata*
+.stage_*

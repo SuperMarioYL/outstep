@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "outstep"
+version = "0.1.0"
+description = "Pre-deployment escape-behavior canary probe for open-weight CN models with tool access."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [{ name = "SuperMarioYL" }]
+keywords = ["llm", "agent-safety", "escape-behavior", "canary", "open-weight", "containment"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Software Development :: Testing",
+    "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+    "openai>=1.40,<2.0",
+    "pydantic>=2.7,<3.0",
+    "typer>=0.12,<1.0",
+    "pyyaml>=6.0,<7.0",
+    "rich>=13.7,<14.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<9"]
+
+[project.scripts]
+outstep = "outstep.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/SuperMarioYL/outstep"
+Repository = "https://github.com/SuperMarioYL/outstep"
+Issues = "https://github.com/SuperMarioYL/outstep/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/outstep"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint.per-file-ignores]
+"src/outstep/cli.py" = ["B008"]  # typer requires typer.Option/Argument in defaults
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
