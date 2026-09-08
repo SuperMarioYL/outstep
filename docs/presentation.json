@@ -1,0 +1,78 @@
+{
+  "name": "Outstep",
+  "tagline": "Make permitted tool scope explicit",
+  "architecture": {
+    "title": "A scenario and action log meet at the observer",
+    "nodes": [
+      {
+        "title": "YAML battery",
+        "detail": "goals, tools and rules"
+      },
+      {
+        "title": "Validation",
+        "detail": "unique IDs and rule checks"
+      },
+      {
+        "title": "Action records",
+        "detail": "declared tool arguments"
+      },
+      {
+        "title": "Scope observer",
+        "detail": "glob match and classification"
+      }
+    ],
+    "edges": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ]
+    ]
+  },
+  "process": {
+    "title": "From input to a useful result",
+    "steps": [
+      {
+        "title": "Validate battery",
+        "detail": "12 scenarios / 15 rules"
+      },
+      {
+        "title": "Declare two reads",
+        "detail": "allowed docs and outside path"
+      },
+      {
+        "title": "Classify records",
+        "detail": "one unauthorized action"
+      }
+    ],
+    "result": "The observer flags one of two synthetic action records; neither path is read."
+  },
+  "integrations": {
+    "title": "Supported input and output routes",
+    "items": [
+      {
+        "title": "YAML",
+        "detail": "declarative scenario input"
+      },
+      {
+        "title": "Python dataclasses",
+        "detail": "Scenario / Action / Rule"
+      },
+      {
+        "title": "Scope observer",
+        "detail": "tool-target classification"
+      },
+      {
+        "title": "JSON / Markdown",
+        "detail": "dry report previews"
+      }
+    ]
+  }
+}

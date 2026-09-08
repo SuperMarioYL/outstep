@@ -1,0 +1,38 @@
+{
+  "mode": "auto",
+  "id": "5681e6-876ae7-acddf6-9d4a7b652ac6",
+  "identity": "https://github.com/supermarioyl/outstep",
+  "primary": "#5681e6",
+  "secondary": "#876ae7",
+  "highlight": "#acddf6",
+  "dark": {
+    "bg": "#050812",
+    "panel": "#0c121f",
+    "code": "#0a101d",
+    "ink": "#eef8fd",
+    "muted": "#95a5c4",
+    "line": "#172341",
+    "primary": "#5681e6",
+    "secondary": "#876ae7",
+    "highlight": "#acddf6",
+    "accent": "#5681e6",
+    "buttonStart": "#4d73ce",
+    "buttonEnd": "#7e63d8",
+    "buttonText": "#ffffff"
+  },
+  "light": {
+    "bg": "#f9fbfe",
+    "panel": "#f7f9fe",
+    "code": "#f3f6fd",
+    "ink": "#131c30",
+    "muted": "#556788",
+    "line": "#cbd9f7",
+    "primary": "#496ec4",
+    "secondary": "#785ece",
+    "highlight": "#5b7582",
+    "accent": "#496ec4",
+    "buttonStart": "#4d73ce",
+    "buttonEnd": "#7e63d8",
+    "buttonText": "#ffffff"
+  }
+}

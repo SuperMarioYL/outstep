@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "outstep"
 version = "0.1.0"
-description = "Pre-deployment escape-behavior canary probe for open-weight CN models with tool access."
+description = "Validate declarative tool-scope test batteries and classify recorded actions against allowlists; live model execution is not yet implemented."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"

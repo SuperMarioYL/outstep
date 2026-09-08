@@ -1,93 +1,215 @@
 {
-  "schema": 1,
-  "name": "outstep",
+  "schema": 3,
+  "name": "Outstep",
   "github": "https://github.com/SuperMarioYL/outstep",
   "host": "outstep.lei6393.com",
-  "lang": { "primary": "zh", "toggle": true },
-  "accent": ["#e6a144", "#d97706", "#92400e"],
+  "palette": "auto",
+  "lang": {
+    "primary": "en",
+    "toggle": true
+  },
+  "meta": {
+    "visual_style": "neon-particle",
+    "demo_source": "docs/demo-results.json"
+  },
   "hero": {
-    "eyebrow": {
-      "zh": "部署前 · 自托管 · 12 个场景",
-      "en": "pre-deploy · self-hosted · 12 scenarios"
-    },
     "headline": {
-      "zh": "上线前，先知道\n你的模型会不会越狱",
-      "en": "Know if your model\nescapes before you ship"
+      "en": "Make permitted tool scope explicit",
+      "zh": "把工具允许访问的范围写清楚"
     },
     "sub": {
-      "zh": "给挂上工具的国产开放权重模型排好 12 个越权场景和一份可机读的围堵报告——上线前一条命令校验全部场景、预览报告格式。",
-      "en": "Line up 12 escape scenarios and a machine-readable containment report for a tooled-up open-weight CN model — one command before deploy validates every scenario and previews the report."
+      "en": "Outstep defines canary scenarios as goals, available tools and scope allowlists. The current implementation validates those batteries and classifies supplied action records; the live model harness is still a stub.",
+      "zh": "Outstep 用目标、可用工具和范围白名单定义金丝雀场景。当前实现可校验测试集合并分类给定动作记录，在线模型测试器仍是占位实现。"
     },
-    "command": "outstep run --dry --battery canary_v1",
-    "cta": { "zh": "快速开始", "en": "Quickstart" },
-    "ctaGithub": { "zh": "GitHub", "en": "GitHub" },
-    "scroll": { "zh": "看优势", "en": "See advantages" }
+    "href": "#quickstart"
   },
   "advantages": [
     {
       "title": {
-        "zh": "12 个越权场景，上线前摆好",
-        "en": "12 escape scenarios, lined up before you ship"
+        "en": "Review the battery",
+        "zh": "审阅测试集合"
       },
       "body": {
-        "zh": "把诱使模型越权的 12 个场景和各自的安全边界一次摆出来——一条命令、10 秒校验，无需模型。",
-        "en": "Lay out 12 scenarios that invite the model to overreach, each with its own safety boundary — one command, 10 seconds, no model needed."
-      },
-      "chips": ["› 12 个越权场景", "› 逐场景安全边界", "› 无需模型即可校验"]
+        "en": "Each scenario includes a goal, tool list and explicit scope patterns.",
+        "zh": "每个场景包含目标、工具列表和明确范围模式。"
+      }
     },
     {
       "title": {
-        "zh": "围堵报告：越权分 + 逐动作判定",
-        "en": "Containment report: escape score + per-action verdict"
+        "en": "Validate contracts",
+        "zh": "校验场景约定"
       },
       "body": {
-        "zh": "每份报告给你一个越权分（n/12）、每个场景的逐动作放行/越权判定、和一个可复现的 sha256 摘要——能机读，能塞进安全评审。",
-        "en": "Every report gives an escape score (n/12), a per-scenario per-action pass/fail, and a reproducible sha256 digest — machine-readable and ready for a security review."
-      },
-      "chips": ["› 越权分 n/12", "› 逐动作放行/越权", "› JSON / Markdown 输出"]
+        "en": "The loader rejects duplicate IDs and rules naming unavailable tools.",
+        "zh": "加载器拒绝重复 ID 和引用不可用工具的规则。"
+      }
     },
     {
       "title": {
-        "zh": "上线前体检，不是运行时拦门",
-        "en": "A pre-deploy checkup, not a runtime gate"
+        "en": "Explain classification",
+        "zh": "解释动作分类"
       },
       "body": {
-        "zh": "把越权检查前移到上线之前——固定一组场景、固定一份报告格式，上线前就备好。门归门，体检归体检。",
-        "en": "Move the escape check before deploy — fix one battery and one report format, ready before you ship. A gate is a gate; a checkup is a checkup."
+        "en": "The observer retains all attempted actions and their unauthorized subset.",
+        "zh": "观察器保留全部动作及其中未授权的子集。"
+      }
+    }
+  ],
+  "demo": {
+    "title": {
+      "en": "Run it on a complete example",
+      "zh": "运行完整示例"
+    },
+    "note": {
+      "en": "The complete example loads the actual canary_v1 battery, then evaluates two explicit synthetic file_read records against /workspace/docs/*. It never opens either target file or calls a model.",
+      "zh": "完整示例加载实际 canary_v1 测试集合，再按 /workspace/docs/* 检查两条明确的合成 file_read 记录。不会打开目标文件或调用模型。"
+    },
+    "source": "https://github.com/SuperMarioYL/outstep/blob/main/docs/demo-results.json",
+    "steps": [
+      {
+        "label": "Recorded run",
+        "body": "Actual battery validation and scope-observer classification of synthetic action records. No file execution or model endpoint.",
+        "command": ".venv/bin/python examples/presentation_demo.py",
+        "output": "{\"allowlist_rules\": 15, \"battery\": \"canary_v1\", \"scenarios\": 12}\n{\n  \"scenario_id\": \"local-demo\",\n  \"attempted_actions\": [\n    {\n      \"tool\": \"file_read\",\n      \"args\": {\n        \"path\": \"/workspace/docs/notes.md\"\n      },\n      \"raw\": \"\"\n    },\n    {\n      \"tool\": \"file_read\",\n      \"args\": {\n        \"path\": \"/etc/passwd\"\n      },\n      \"raw\": \"\"\n    }\n  ],\n  \"unauthorized\": [\n    {\n      \"tool\": \"file_read\",\n      \"args\": {\n        \"path\": \"/etc/passwd\"\n      },\n      \"raw\": \"\"\n    }\n  ],\n  \"verdict\": \"escaped\"\n}\nScope: synthetic action records only; no file read, model call or escape measurement.",
+        "image": "/assets/presentation/demo-0-light.svg",
+        "imageDark": "/assets/presentation/demo-0-dark.svg"
+      }
+    ]
+  },
+  "quickstart": {
+    "title": {
+      "en": "Try it locally",
+      "zh": "本地上手"
+    },
+    "body": {
+      "en": "The complete example loads the actual canary_v1 battery, then evaluates two explicit synthetic file_read records against /workspace/docs/*. It never opens either target file or calls a model.",
+      "zh": "完整示例加载实际 canary_v1 测试集合，再按 /workspace/docs/* 检查两条明确的合成 file_read 记录。不会打开目标文件或调用模型。"
+    },
+    "steps": [
+      {
+        "title": {
+          "en": "Install from source",
+          "zh": "从源码安装"
+        },
+        "code": "git clone https://github.com/SuperMarioYL/outstep.git\ncd outstep\nuv venv --python 3.12\nsource .venv/bin/activate\nuv pip install -e ."
       },
-      "chips": ["› 部署前介入", "› 固定场景 + 固定格式", "› 不替代运行时门"]
+      {
+        "title": {
+          "en": "Run the included example",
+          "zh": "运行随仓示例"
+        },
+        "code": ".venv/bin/python examples/presentation_demo.py"
+      }
+    ]
+  },
+  "limitations": [
+    {
+      "en": "No live model run is implemented. A zero exit from its roadmap message is not a successful model test.",
+      "zh": "在线模型运行尚未实现。路线图提示返回零退出码，不代表模型测试成功。"
     },
     {
-      "title": {
-        "zh": "诚实信号：倾向，不是保证",
-        "en": "An honest signal: tendency, not proof"
-      },
-      "body": {
-        "zh": "每份报告都标着「tendency, not proof」——给你一个可复现的倾向信号，从不替你盖章「安全」。只在你本机自托管的模型上跑，不碰托管 API。",
-        "en": "Every report is stamped 'tendency, not proof' — a reproducible tendency signal, never a 'safe' stamp. It runs only on models you self-host; it never touches hosted APIs."
-      },
-      "chips": ["› 标注 tendency, not proof", "› 仅自托管模型", "› MIT · 免费 OSS"]
+      "en": "Dry reports say contained because no actions were attempted; they provide no evidence of model containment.",
+      "zh": "dry 报告中的 contained 来自没有任何动作，不提供模型受约束的证据。"
+    },
+    {
+      "en": "Glob classification is not filesystem canonicalization or a runtime security boundary.",
+      "zh": "glob 分类不是文件系统规范化，也不是运行时安全边界。"
     }
   ],
   "scene": {
-    "kind": "hub-nodes",
-    "nodes": ["Kimi-K3", "DeepSeek-V4", "Qwen3.8"]
+    "kind": "neon-graph",
+    "fallback": "/assets/presentation/scene-dark.svg",
+    "fallbackLight": "/assets/presentation/scene-light.svg"
   },
-  "cta": {
-    "headline": {
-      "zh": "上线前，先摆好这 12 个场景",
-      "en": "Line up the 12 scenarios before you ship"
+  "story": {
+    "intro": {
+      "title": {
+        "en": "A concrete task",
+        "zh": "从实际任务出发"
+      },
+      "body": {
+        "en": "Before probing an agent’s behavior, the test needs a clear answer to which actions are allowed. A versioned scenario file makes that boundary reviewable, while a deterministic observer applies the same rule to each declared action.",
+        "zh": "探测 Agent 行为之前，测试本身需要明确哪些操作被允许。版本化场景文件使边界可供审阅，确定性观察器则对每条声明动作应用同一规则。"
+      }
     },
-    "sub": {
-      "zh": "三条命令、10 秒，看清每个越权场景盯的是哪类越权。",
-      "en": "Three commands, ten seconds — see which out-of-scope action each scenario watches."
-    },
-    "button": { "zh": "在 GitHub 上查看", "en": "View on GitHub" }
-  },
-  "footer": {
-    "tag": {
-      "zh": "MIT · 自托管 · 免费 OSS · 仅探针你自托管的模型",
-      "en": "MIT · self-hosted · free OSS · probes only models you self-host"
-    }
+    "sections": [
+      {
+        "title": {
+          "en": "Follow the operation",
+          "zh": "处理过程"
+        },
+        "body": {
+          "en": "battery.py loads bundled YAML into Scenario and Rule records, then checks its invariants. ScopeObserver maps file_read to path, shell_exec to command and http_get to hostname, using fnmatch against matching tool rules. Its ActionResult includes the attempted list, unauthorized list and a contained/escaped label.",
+          "zh": "battery.py 将内置 YAML 加载为 Scenario 和 Rule，并检查约束。ScopeObserver 将 file_read 映射到路径、shell_exec 映射到命令、http_get 映射到主机名，对相同工具规则使用 fnmatch。ActionResult 保存全部动作、未授权动作及 contained/escaped 标签。"
+        },
+        "image": {
+          "light": "/assets/presentation/process-light.svg",
+          "dark": "/assets/presentation/process-dark.svg",
+          "alt": {
+            "en": "Follow the operation",
+            "zh": "处理过程"
+          }
+        }
+      },
+      {
+        "title": {
+          "en": "A scenario and action log meet at the observer",
+          "zh": "场景与动作记录在观察器中匹配"
+        },
+        "body": {
+          "en": "battery.py loads bundled YAML into Scenario and Rule records, then checks its invariants. ScopeObserver maps file_read to path, shell_exec to command and http_get to hostname, using fnmatch against matching tool rules. Its ActionResult includes the attempted list, unauthorized list and a contained/escaped label.",
+          "zh": "battery.py 将内置 YAML 加载为 Scenario 和 Rule，并检查约束。ScopeObserver 将 file_read 映射到路径、shell_exec 映射到命令、http_get 映射到主机名，对相同工具规则使用 fnmatch。ActionResult 保存全部动作、未授权动作及 contained/escaped 标签。"
+        },
+        "image": {
+          "light": "/assets/presentation/architecture-light.svg",
+          "dark": "/assets/presentation/architecture-dark.svg",
+          "alt": {
+            "en": "A scenario and action log meet at the observer",
+            "zh": "场景与动作记录在观察器中匹配"
+          }
+        }
+      },
+      {
+        "title": {
+          "en": "Connect the pieces",
+          "zh": "输入与输出"
+        },
+        "body": {
+          "en": "Outstep currently prepares and interprets test data. It is not a runtime enforcement gate, sandbox or attestation system. Its model endpoint option reserves a future integration point; supplying one does not make the unimplemented harness run.",
+          "zh": "Outstep 当前负责准备和解释测试数据，不是运行时拦截器、沙箱或签名系统。模型端点选项为后续接入保留；提供端点也不会让未实现的测试器开始运行。"
+        },
+        "image": {
+          "light": "/assets/presentation/integrations-light.svg",
+          "dark": "/assets/presentation/integrations-dark.svg",
+          "alt": {
+            "en": "Connect the pieces",
+            "zh": "输入与输出"
+          }
+        }
+      }
+    ],
+    "details": [
+      {
+        "title": {
+          "en": "Configuration",
+          "zh": "配置"
+        },
+        "body": {
+          "en": "A battery has version and a non-empty scenarios list. Each scenario defines id, goal, tools and allowlist entries with tool/scope. Scope patterns are string globs; HTTP patterns match hostnames. OUTSTEP_MODEL and --model exist but lead to HarnessNotImplemented. The report hash covers the battery plan, not an actual model transcript.",
+          "zh": "测试集合包含 version 和非空 scenarios。每个场景定义 id、goal、tools，以及带 tool/scope 的 allowlist 条目。范围模式是字符串 glob，HTTP 模式匹配主机名。OUTSTEP_MODEL 和 --model 虽存在，但会进入 HarnessNotImplemented。报告哈希覆盖测试计划，不是真实模型会话。"
+        }
+      },
+      {
+        "title": {
+          "en": "Further use",
+          "zh": "进一步使用"
+        },
+        "body": {
+          "en": "run --dry validates and displays the bundled plan. report prints a format preview, with no attempted actions. For a custom file through Python, call Battery.load(\"custom\", path=\"battery.yaml\"). The current CLI passes --battery as a bundled resource name, so use the Python path argument for custom YAML.",
+          "zh": "run --dry 校验并显示内置计划。report 打印格式预览，其中没有实际尝试的动作。Python 自定义文件用法是 Battery.load(\"custom\", path=\"battery.yaml\")。当前 CLI 将 --battery 作为内置资源名称传入，自定义 YAML 应使用 Python 的 path 参数。"
+        },
+        "code": ".venv/bin/outstep run --dry --battery canary_v1\n.venv/bin/outstep report --battery canary_v1 --out json"
+      }
+    ]
   }
 }
