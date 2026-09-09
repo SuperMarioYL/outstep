@@ -10,6 +10,8 @@ when those milestones land.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -112,7 +114,10 @@ def report(
     battery: str = typer.Option("canary_v1", "--battery", "-b"),
     model: str = typer.Option("dry-run", "--model", "-m", envvar="OUTSTEP_MODEL"),
     out: str = typer.Option(
-        "stdout", "--out", help="stdout | md | json (m3 adds file output)."
+        "stdout", "--out", help="stdout | md | json (rendered format; also used by --file)."
+    ),
+    file: str = typer.Option(
+        None, "--file", help="Write the report in the --out format (md or json) to this path."
     ),
 ) -> None:
     """Preview or write a containment report (m3 adds the real scorecard)."""
@@ -125,6 +130,20 @@ def report(
         raise typer.Exit(code=2) from exc
 
     rep = dry_run_report(bat, model=model)
+
+    if file:
+        if out not in ("md", "json"):
+            console.print("[red]--file requires --out md or --out json[/red]")
+            raise typer.Exit(code=2)
+        target = Path(file)
+        if not target.parent.is_dir():
+            console.print(f"[red]parent directory does not exist:[/red] {target.parent}")
+            raise typer.Exit(code=2)
+        content = to_markdown(rep) if out == "md" else to_json(rep)
+        target.write_text(content + "\n", encoding="utf-8")
+        console.print(f"[green]report written:[/green] {target}")
+        return
+
     if out == "json":
         console.print(to_json(rep))
     elif out == "md":

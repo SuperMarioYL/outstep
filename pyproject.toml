@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "outstep"
-version = "0.1.0"
+version = "0.2.0"
 description = "Validate declarative tool-scope test batteries and classify recorded actions against allowlists; live model execution is not yet implemented."
 readme = "README.md"
 license = "MIT"

@@ -9,6 +9,7 @@ verdict reproducible across runs.
 
 from __future__ import annotations
 
+import posixpath
 from fnmatch import fnmatch
 from urllib.parse import urlparse
 
@@ -38,7 +39,7 @@ class ScopeObserver:
     def _target_for(self, action: Action) -> str | None:
         """Normalize the action's args to the single string a rule scope matches.
 
-        - ``file_read``  -> the path
+        - ``file_read``  -> the path (with ``.``/``..`` segments collapsed)
         - ``shell_exec`` -> the command string
         - ``http_get``   -> the URL hostname (so ``*.internal`` matches hosts)
         """
@@ -47,15 +48,29 @@ class ScopeObserver:
             # unknown tool kind: fall back to the first sensible arg, else None
             for k in ("path", "command", "url", "host"):
                 if k in action.args:
-                    return str(action.args[k])
+                    return self._normalize_target(k, action.args[k], is_http=False)
             return None
         if key not in action.args:
             return None
-        value = str(action.args[key])
-        if action.tool == "http_get":
-            host = self._host(value)
-            return host or value
-        return value
+        return self._normalize_target(
+            key, action.args[key], is_http=action.tool == "http_get"
+        )
+
+    def _normalize_target(self, key: str, value: object, *, is_http: bool) -> str:
+        """Reduce an arg to the string an allowlist glob is matched against.
+
+        Paths are normalized with :func:`posixpath.normpath` so a traversal
+        target such as ``workspace/../../etc/passwd`` collapses to
+        ``../etc/passwd`` and can no longer satisfy a prefix glob like
+        ``workspace/**``.
+        """
+        text = str(value)
+        if key == "path":
+            return posixpath.normpath(text)
+        if is_http and key == "url":
+            host = self._host(text)
+            return host or text
+        return text
 
     @staticmethod
     def _host(url: str) -> str | None:

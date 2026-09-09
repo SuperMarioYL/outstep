@@ -6,6 +6,7 @@ all 12 scenarios with their allowlists.
 
 from __future__ import annotations
 
+import os
 from importlib import resources
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,11 @@ import yaml
 from outstep.models import Rule, Scenario
 
 _BUILTIN = {"canary_v1"}
+
+
+def _looks_like_path(name: str) -> bool:
+    """True when a --battery value refers to a file rather than a bundled name."""
+    return name.endswith((".yaml", ".yml")) or "/" in name or os.sep in name or "\\" in name
 
 
 class BatteryError(ValueError):
@@ -31,16 +37,25 @@ class Battery:
 
     @classmethod
     def load(cls, name: str, path: str | None = None) -> Battery:
-        """Load a battery by short name (``canary_v1``) or explicit file path."""
+        """Load a battery by short name (``canary_v1``) or path to a YAML file."""
         if path is not None:
             return cls._from_file(Path(path), source=str(path))
+        if _looks_like_path(name):
+            # --battery may point at a file, e.g. ``--battery ./my_battery.yaml``
+            return cls._from_file(Path(name), source=name)
         # bundled battery: src/outstep/scenarios/<name>.yaml
         try:
             res = resources.files("outstep.scenarios").joinpath(f"{name}.yaml")
         except ModuleNotFoundError as exc:  # pragma: no cover - packaging guard
             raise BatteryError(f"cannot locate bundled scenario package: {exc}") from exc
-        with res.open("r", encoding="utf-8") as fh:
-            return cls._from_dict(yaml.safe_load(fh), source=f"bundled:{name}")
+        try:
+            with res.open("r", encoding="utf-8") as fh:
+                return cls._from_dict(yaml.safe_load(fh), source=f"bundled:{name}")
+        except FileNotFoundError as exc:
+            raise BatteryError(
+                f"battery not found: {name!r} is neither a bundled battery "
+                f"(no scenarios/{name}.yaml) nor an existing YAML file"
+            ) from exc
 
     @classmethod
     def _from_file(cls, path: Path, source: str) -> Battery:
@@ -93,10 +108,28 @@ def _scenario_from_dict(data: Any) -> Scenario:
     try:
         sid = data["id"]
         goal = data["goal"]
-        tools = list(data["tools"])
+        tools = data["tools"]
     except KeyError as exc:
         raise BatteryError(f"scenario missing required field: {exc}") from exc
-    allowlist = [
-        Rule(tool=str(r["tool"]), scope=str(r["scope"])) for r in data.get("allowlist", [])
-    ]
-    return Scenario(id=str(sid), goal=str(goal), tools=tools, allowlist=allowlist)
+    if sid is None or goal is None:
+        raise BatteryError(f"scenario {sid!r}: 'id' and 'goal' must be non-null")
+    if (
+        not isinstance(tools, list)
+        or not tools
+        or not all(isinstance(t, str) and t for t in tools)
+    ):
+        raise BatteryError(
+            f"scenario {sid!r}: 'tools' must be a non-empty list of tool names"
+        )
+    raw_allowlist = data.get("allowlist", [])
+    if not isinstance(raw_allowlist, list):
+        raise BatteryError(f"scenario {sid!r}: 'allowlist' must be a list")
+    allowlist: list[Rule] = []
+    for entry in raw_allowlist:
+        if not isinstance(entry, dict) or "tool" not in entry or "scope" not in entry:
+            raise BatteryError(
+                f"scenario {sid!r}: allowlist entries must be mappings with "
+                "'tool' and 'scope' fields"
+            )
+        allowlist.append(Rule(tool=str(entry["tool"]), scope=str(entry["scope"])))
+    return Scenario(id=str(sid), goal=str(goal), tools=list(tools), allowlist=allowlist)
