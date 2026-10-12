@@ -55,6 +55,16 @@
         "en": "The observer retains all attempted actions and their unauthorized subset.",
         "zh": "观察器保留全部动作及其中未授权的子集。"
       }
+    },
+    {
+      "title": {
+        "en": "Compare models",
+        "zh": "跨模型对比"
+      },
+      "body": {
+        "en": "Load saved containment reports and diff escape scores side by side across models.",
+        "zh": "加载已保存的围堵报告，跨模型并排对比越权分数。"
+      }
     }
   ],
   "demo": {
@@ -101,6 +111,13 @@
           "zh": "运行随仓示例"
         },
         "code": ".venv/bin/python examples/presentation_demo.py"
+      },
+      {
+        "title": {
+          "en": "Compare saved reports",
+          "zh": "对比已保存的报告"
+        },
+        "code": ".venv/bin/outstep report --model deepseek --out json --file deepseek.json\n.venv/bin/outstep report --model qwen --out json --file qwen.json\n.venv/bin/outstep compare deepseek.json qwen.json"
       }
     ]
   },
@@ -116,6 +133,10 @@
     {
       "en": "Glob classification is not filesystem canonicalization or a runtime security boundary.",
       "zh": "glob 分类不是文件系统规范化，也不是运行时安全边界。"
+    },
+    {
+      "en": "shell_exec allowlists use conservative chaining protection: commands carrying ;, |, &, backticks, $( or newlines never match an allowlist; without shell parsing other command forms still cannot be judged precisely.",
+      "zh": "shell_exec 白名单采用保守的串联防护：含 ;、|、&、反引号、$( 或换行的命令不会匹配任何 allowlist；没有 shell 解析时，其余命令形式仍无法精确判定。"
     }
   ],
   "scene": {
