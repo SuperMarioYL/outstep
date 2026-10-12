@@ -59,9 +59,13 @@ class Battery:
 
     @classmethod
     def _from_file(cls, path: Path, source: str) -> Battery:
-        if not path.exists():
-            raise BatteryError(f"battery file not found: {path}")
-        return cls._from_dict(yaml.safe_load(path.read_text(encoding="utf-8")), source=source)
+        if not path.is_file():
+            raise BatteryError(f"battery file not found or not a regular file: {path}")
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            raise BatteryError(f"cannot read battery file {path}: {exc}") from exc
+        return cls._from_dict(yaml.safe_load(text), source=source)
 
     @classmethod
     def _from_dict(cls, data: Any, source: str) -> Battery:

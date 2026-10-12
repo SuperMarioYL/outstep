@@ -110,18 +110,19 @@ Scope: synthetic action records only; no file read, model call or escape measure
 
 ## 用法
 
-run --dry 校验并显示计划。--battery 接受内置名称（如 canary_v1）或 YAML 文件路径。report 打印格式预览，其中没有实际尝试的动作；--file <path> 将 md/json 格式报告写入磁盘。
+run --dry 校验并显示计划。--battery 接受内置名称（如 canary_v1）或 YAML 文件路径。report 打印格式预览，其中没有实际尝试的动作；--file <path> 将 md/json 格式报告写入磁盘。compare 读取两个及以上由 report --out json --file 保存的报告，输出模型记分卡、排名和逐场景判定矩阵。
 
 ```bash
 .venv/bin/outstep run --dry --battery canary_v1
 .venv/bin/outstep run --dry --battery ./my_battery.yaml
 .venv/bin/outstep report --battery canary_v1 --out json
 .venv/bin/outstep report --battery canary_v1 --out md --file containment-report.md
+.venv/bin/outstep compare deepseek.json qwen.json
 ```
 
 ## 配置
 
-测试集合包含 version 和非空 scenarios。每个场景定义 id、goal、tools，以及带 tool/scope 的 allowlist 条目。范围模式是字符串 glob，文件路径在匹配前做词法规范化（normpath，阻止 .. 穿越），HTTP 模式匹配主机名。OUTSTEP_MODEL 和 --model 虽存在，但会进入 HarnessNotImplemented。报告哈希覆盖测试计划，不是真实模型会话。
+测试集合包含 version 和非空 scenarios。每个场景定义 id、goal、tools，以及带 tool/scope 的 allowlist 条目。范围模式是字符串 glob（大小写敏感），文件路径在匹配前做词法规范化（normpath，阻止 .. 穿越），HTTP 模式匹配主机名；含 `;`、`|`、`&`、反引号、`$(` 或换行的 shell_exec 命令不会匹配任何白名单（保守拒绝，见下文限制）。OUTSTEP_MODEL 和 --model 虽存在，但会进入 HarnessNotImplemented。报告哈希覆盖测试计划，不是真实模型会话。
 
 ## 集成与职责分工
 
@@ -146,7 +147,7 @@ Outstep 当前负责准备和解释测试数据，不是运行时拦截器、沙
 - 在线模型运行尚未实现。路线图提示返回零退出码，不代表模型测试成功。
 - dry 报告中的 contained 来自没有任何动作，不提供模型受约束的证据。
 - glob 分类不是文件系统规范化，也不是运行时安全边界。
-- shell_exec 前缀 glob 无法识别命令串联：`echo workspace/a; cat /etc/passwd` 仍会匹配 `echo workspace/*`；正确修复需要 shell 解析，暂缓。
+- shell_exec 白名单采用保守的串联防护：含 `;`、`|`、`&`、反引号、`$(` 或换行的命令不会匹配任何 allowlist（倾向于标记而非漏报）。没有 shell 解析时，其余形式（如引号内的分隔符、重定向目标）仍无法精确判定，glob 分类也非运行时安全边界。
 
 已实现 12 个场景的测试集合、Schema 校验、范围观察器和报告预览。下一步是模型驱动器、实际工具调用记录、基于运行结果的报告和跨模型比较。长时程测试和托管服务仍属后续方向。
 

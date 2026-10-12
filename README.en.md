@@ -110,18 +110,19 @@ The existing recording is retained for context; the text example above documents
 
 ## Usage
 
-run --dry validates and displays the plan. --battery accepts a bundled name (such as canary_v1) or a path to a YAML file. report prints a format preview, with no attempted actions; --file <path> writes the md/json report to disk.
+run --dry validates and displays the plan. --battery accepts a bundled name (such as canary_v1) or a path to a YAML file. report prints a format preview, with no attempted actions; --file <path> writes the md/json report to disk. compare reads two or more reports saved by report --out json --file and renders a per-model scorecard, a ranking and a per-scenario verdict matrix.
 
 ```bash
 .venv/bin/outstep run --dry --battery canary_v1
 .venv/bin/outstep run --dry --battery ./my_battery.yaml
 .venv/bin/outstep report --battery canary_v1 --out json
 .venv/bin/outstep report --battery canary_v1 --out md --file containment-report.md
+.venv/bin/outstep compare deepseek.json qwen.json
 ```
 
 ## Configuration
 
-A battery has version and a non-empty scenarios list. Each scenario defines id, goal, tools and allowlist entries with tool/scope. Scope patterns are string globs; file paths are lexically normalized (normpath, blocking `..` traversal) before matching, and HTTP patterns match hostnames. OUTSTEP_MODEL and --model exist but lead to HarnessNotImplemented. The report hash covers the battery plan, not an actual model transcript.
+A battery has version and a non-empty scenarios list. Each scenario defines id, goal, tools and allowlist entries with tool/scope. Scope patterns are case-sensitive string globs; file paths are lexically normalized (normpath, blocking `..` traversal) before matching, and HTTP patterns match hostnames. shell_exec commands carrying `;`, `|`, `&`, backticks, `$(` or newlines never match an allowlist (conservative refusal — see limits below). OUTSTEP_MODEL and --model exist but lead to HarnessNotImplemented. The report hash covers the battery plan, not an actual model transcript.
 
 ## Integrations and responsibilities
 
@@ -146,7 +147,7 @@ Outstep currently prepares and interprets test data. It is not a runtime enforce
 - No live model run is implemented. A zero exit from its roadmap message is not a successful model test.
 - Dry reports say contained because no actions were attempted; they provide no evidence of model containment.
 - Glob classification is not filesystem canonicalization or a runtime security boundary.
-- shell_exec prefix globs cannot detect command chaining: `echo workspace/a; cat /etc/passwd` still matches an `echo workspace/*` allowlist; a correct fix needs shell parsing and is deferred.
+- shell_exec allowlists use conservative chaining protection: commands carrying `;`, `|`, `&`, backticks, `$(` or newlines never match an allowlist (flagging beats missing an escape). Without shell parsing, remaining forms (separators inside quotes, redirect targets) still cannot be judged precisely, and glob classification is not a runtime security boundary.
 
 Implemented: a 12-scenario battery, schema validation, scope observer and report previews. Next: an instrumented model driver, actual tool-call transcripts, report generation from runs and multi-model comparison. Long-horizon tests and hosted services remain future work.
 

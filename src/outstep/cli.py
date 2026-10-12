@@ -19,7 +19,7 @@ from rich.table import Table
 from outstep import __version__
 from outstep.battery import Battery, BatteryError
 from outstep.harness import Harness, HarnessNotImplemented
-from outstep.models import Rule
+from outstep.models import ContainmentReport, Rule
 
 app = typer.Typer(
     name="outstep",
@@ -139,6 +139,9 @@ def report(
         if not target.parent.is_dir():
             console.print(f"[red]parent directory does not exist:[/red] {target.parent}")
             raise typer.Exit(code=2)
+        if target.exists() and not target.is_file():
+            console.print(f"[red]report target is not a regular file:[/red] {target}")
+            raise typer.Exit(code=2)
         content = to_markdown(rep) if out == "md" else to_json(rep)
         target.write_text(content + "\n", encoding="utf-8")
         console.print(f"[green]report written:[/green] {target}")
@@ -154,18 +157,73 @@ def report(
 
 @app.command()
 def compare(
-    models: list[str] = typer.Argument(None, help="Two or more model names to diff (m3)."),
-    battery: str = typer.Option("canary_v1", "--battery", "-b"),
+    reports: list[str] = typer.Argument(
+        None,
+        help="Two or more JSON report paths written by `outstep report --out json --file`.",
+    ),
 ) -> None:
     """Diff containment reports across 2+ models (m3)."""
-    console.print(
-        "[yellow]outstep compare ships in m3[/yellow] — v0.1 emits per-model "
-        "reports only. The side-by-side scorecard lands with m3."
-    )
-    console.print(
-        f"configured for battery [cyan]{battery}[/cyan] "
-        f"against models: {', '.join(models) or '(none)'}"
-    )
+    from outstep.compare import CompareError, load_report
+
+    if not reports or len(reports) < 2:
+        console.print(
+            "[red]compare error:[/red] pass two or more report files, e.g. "
+            "`outstep compare deepseek.json qwen.json`"
+        )
+        raise typer.Exit(code=2)
+
+    loaded = []
+    for path in reports:
+        try:
+            loaded.append(load_report(path))
+        except CompareError as exc:
+            console.print(f"[red]compare error:[/red] {exc}")
+            raise typer.Exit(code=2) from exc
+
+    _print_comparison(loaded)
+
+
+def _print_comparison(reports: list[ContainmentReport]) -> None:
+    from outstep.compare import compare as build_comparison
+    from outstep.models import DISCLAIMER
+
+    versions = sorted({r.battery_version for r in reports})
+    if len(versions) > 1:
+        console.print(
+            "[yellow]warning:[/yellow] reports cover different batteries: "
+            + ", ".join(versions)
+        )
+    comparison = build_comparison(reports)
+    table = Table(title=f"Outstep compare — {len(reports)} models")
+    table.add_column("model", style="cyan")
+    table.add_column("battery", style="dim")
+    table.add_column("escape score", justify="right")
+    table.add_column("escaped scenarios", justify="right", style="red")
+    for r in comparison.reports:
+        escaped = sum(1 for a in r.actions if a.verdict == "escaped")
+        table.add_row(
+            r.model,
+            r.battery_version,
+            f"{r.escape_score[0]}/{r.escape_score[1]}",
+            str(escaped),
+        )
+    console.print(table)
+    ranking = ", ".join(f"{m} ({s[0]}/{s[1]})" for m, s in comparison.leaders())
+    console.print(f"ranking (fewest unauthorized): [bold]{ranking}[/bold]")
+
+    verdicts = {r.model: {a.scenario_id: a.verdict for a in r.actions} for r in reports}
+    matrix = Table(title="per-scenario verdicts")
+    matrix.add_column("scenario", style="cyan")
+    for r in reports:
+        matrix.add_column(r.model)
+    for sid in verdicts[reports[0].model]:
+        cells = []
+        for r in reports:
+            v = verdicts[r.model].get(sid, "—")
+            cells.append(f"[red]{v}[/red]" if v == "escaped" else v)
+        matrix.add_row(sid, *cells)
+    console.print(matrix)
+    console.print(f"[dim]{DISCLAIMER}[/dim]")
 
 
 __all__ = ["Rule", "app", "console"]

@@ -74,6 +74,22 @@ def test_missing_path_file_is_friendly_battery_error(tmp_path):
     assert "battery error" in result.output
 
 
+def test_battery_path_directory_is_friendly_battery_error(tmp_path):
+    # m8: a directory raised a raw IsADirectoryError traceback (exit 1).
+    result = runner.invoke(app, ["run", "--battery", str(tmp_path), "--dry"])
+    assert result.exit_code == 2
+    assert "battery error" in result.output
+
+
+def test_non_utf8_battery_file_is_friendly_battery_error(tmp_path):
+    # m8: a Latin-1 file raised a raw UnicodeDecodeError traceback (exit 1).
+    f = tmp_path / "latin1.yaml"
+    f.write_bytes(b"version: x\nscenarios: []\nnote: caf\xe9\n")
+    result = runner.invoke(app, ["run", "--battery", str(f), "--dry"])
+    assert result.exit_code == 2
+    assert "battery error" in result.output
+
+
 # --- schema validation holes ----------------------------------------------------
 
 

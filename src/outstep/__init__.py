@@ -6,14 +6,14 @@ out-of-scope action with a tool allowlist. The scope oracle checks every
 attempted tool call against that allowlist and emits a machine-checkable
 per-model containment report.
 
-v0.2.0 ships battery validation (``--dry`` plus custom YAML files via
-``--battery <path>``), a traversal-safe scope oracle, and dry-run report
-previews with optional file output (``outstep report --out md --file <path>``).
-The live model harness remains unimplemented.
+v0.3.0 ships cross-model comparison over saved reports (``outstep compare
+a.json b.json``), friendlier file-input errors, and a scope oracle that
+refuses shell_exec commands carrying chaining metacharacters. The live model
+harness remains unimplemented.
 """
 
 from __future__ import annotations
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 __all__ = ["__version__"]

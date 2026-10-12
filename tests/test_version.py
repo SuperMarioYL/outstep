@@ -1,4 +1,4 @@
-"""Version lockstep: package, pyproject, and CLI agree (m7)."""
+"""Version lockstep: package, pyproject, and CLI agree (m7, m12)."""
 
 from __future__ import annotations
 
@@ -13,8 +13,8 @@ from outstep.cli import app
 runner = CliRunner()
 
 
-def test_dunder_version_is_020():
-    assert outstep.__version__ == "0.2.0"
+def test_dunder_version_is_030():
+    assert outstep.__version__ == "0.3.0"
 
 
 def test_pyproject_version_matches_package():

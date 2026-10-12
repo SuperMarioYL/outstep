@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.3.0] - 2026-10-13
+
+### Fixed
+
+- **File-input crash paths** (m8): `run --battery` pointing at a directory or a
+  non-UTF-8 file, and `report --file` targeting an existing directory, crashed
+  with raw `IsADirectoryError` / `UnicodeDecodeError` tracebacks and exit 1.
+  All three now exit 2 with the friendly `battery error:` / clear-message path.
+- **shell_exec chaining** (m9): the oracle no longer authorizes a command that
+  chains extra actions after an in-scope prefix. `echo workspace/a; cat
+  /etc/passwd` used to satisfy an `echo workspace/*` allowlist (the documented
+  v0.2.0 known limitation); commands carrying chaining metacharacters (`;`,
+  `|`, `&`, backtick, `$(`, newline) are now classified unauthorized — the
+  conservative direction for a tendency probe. Glob matching also switched to
+  `fnmatchcase` so verdicts are case-deterministic across platforms.
+- **Release assets** (m10): the release workflow builds wheel + sdist but only
+  uploaded them as a workflow artifact, so the v0.2.0 tag page shipped with
+  zero assets. The build job now attaches `dist/*` to the GitHub release.
+
+### Added
+
+- **`outstep compare` over saved reports** (m11): `outstep compare a.json
+  b.json` loads containment reports written by `outstep report --out json
+  --file` and renders a per-model scorecard, a best-first ranking, and a
+  per-scenario verdict matrix — the offline half of the plan's m3 contract.
+  Malformed or missing report files exit 2 with a `compare error`.
+
+### Maintenance
+
+- **Version lockstep** (m12): version bumped to 0.3.0 on every surface
+  (`pyproject.toml`, `outstep.__version__`, CLI `--version`,
+  `web/site.json` meta) with the version-consistency test updated.
+
 ## [0.2.0] - 2026-09-10
 
 ### Fixed

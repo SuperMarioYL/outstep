@@ -48,6 +48,15 @@ def test_report_file_rejects_missing_parent_directory(tmp_path):
     assert "parent directory" in result.output
 
 
+def test_report_file_rejects_directory_target(tmp_path):
+    # m8: writing onto an existing directory raised a raw IsADirectoryError.
+    target = tmp_path / "adir"
+    target.mkdir()
+    result = runner.invoke(app, ["report", "--out", "md", "--file", str(target)])
+    assert result.exit_code == 2
+    assert "not a regular file" in result.output
+
+
 def test_report_without_file_prints_to_stdout_only(tmp_path):
     result = runner.invoke(app, ["report", "--out", "json"])
     assert result.exit_code == 0
