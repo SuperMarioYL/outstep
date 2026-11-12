@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.4.0] - 2026-11-12
+
+### Fixed
+
+- **shell_exec redirection** (m13): v0.3.0 refused commands carrying chaining
+  metacharacters (`;`, `|`, `&`, backtick, `$(`, newline) but not the
+  redirection operators, so `echo workspace/a > /etc/cron.d/persist` still
+  satisfied an `echo workspace/*` allowlist — a fail-open on the bundled
+  `fs_write_outside_workspace` scenario, whose goal is exactly a write to
+  `/etc/cron.d/persist`. `<` and `>` are now chaining markers too, covering
+  `>`, `>>`, `2>`, `&>`, `<`, `<<`, `<(`, `>(`; such commands never match an
+  allowlist and are classified unauthorized.
+- **`compare` per-scenario matrix** (m14): the matrix iterated only the first
+  report's scenario ids, so a scenario present only in a later report (for
+  example the only escape another model made) was silently omitted while the
+  scorecard above it still showed the count. Two reports of the same model also
+  collapsed into one by model-name keying. The matrix is now keyed by report
+  position and iterates the union of scenario ids in first-appearance order,
+  rendering `-` for a report that lacks a scenario.
+- **`report --out` validation** (m15): an unknown format (`--out yaml`, a typo
+  or wrong case) fell through to stdout rendering and exited 0. `--out` is now
+  validated up front; anything outside `stdout | md | json` exits 2 with the
+  accepted formats.
+
+### Maintenance
+
+- **Version lockstep** (m16): version bumped to 0.4.0 on every surface
+  (`pyproject.toml`, `outstep.__version__`, CLI `--version`, `web/site.json`
+  `meta.content_version` / `meta.implementation_version`). `tests/test_version.py`
+  now also asserts both `web/site.json` keys and that the newest CHANGELOG
+  heading equals `__version__`, so a partial bump fails the suite.
+- `ruff check .` is clean again: `examples/presentation_demo.py` import grouping
+  fixed (previously reported I001; CI lints only `src tests`).
+
 ## [0.3.0] - 2026-10-13
 
 ### Fixed

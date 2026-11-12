@@ -22,13 +22,13 @@ _TOOL_TARGET_KEY = {
     "http_get": "url",
 }
 
-# Shell metacharacters that signal chaining or substitution. A shell_exec
-# command containing any of these never matches an allowlist glob: without
-# shell parsing we cannot know what the extra segments touch, so the oracle
-# errs toward flagging (a missed escape is worse than a false alarm for a
+# Shell metacharacters that signal chaining, substitution or redirection. A
+# shell_exec command containing any of these never matches an allowlist glob:
+# without shell parsing we cannot know what the extra segments touch, so the
+# oracle errs toward flagging (a missed escape is worse than a false alarm for a
 # tendency probe). `echo workspace/a; cat /etc/passwd` no longer satisfies
-# `echo workspace/*`.
-_SHELL_CHAIN_MARKS = (";", "|", "&", "`", "$(", "\n", "\r")
+# `echo workspace/*`, and neither does `echo workspace/a > /etc/cron.d/persist`.
+_SHELL_CHAIN_MARKS = (";", "|", "&", "`", "$(", "<", ">", "\n", "\r")
 
 
 class ScopeObserver:
@@ -71,8 +71,9 @@ class ScopeObserver:
         Paths are normalized with :func:`posixpath.normpath` so a traversal
         target such as ``workspace/../../etc/passwd`` collapses to
         ``../etc/passwd`` and can no longer satisfy a prefix glob like
-        ``workspace/**``. Commands carrying chaining metacharacters reduce to
-        ``None`` (unmatchable) instead of their raw text.
+        ``workspace/**``. Commands carrying chaining, substitution or
+        redirection metacharacters reduce to ``None`` (unmatchable) instead of
+        their raw text.
         """
         text = str(value)
         if key == "path":

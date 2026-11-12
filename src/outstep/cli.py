@@ -123,6 +123,13 @@ def report(
     """Preview or write a containment report (m3 adds the real scorecard)."""
     from outstep.report import dry_run_report, render_stdout, to_json, to_markdown
 
+    if out not in ("stdout", "md", "json"):
+        console.print(
+            f"[red]report error:[/red] unknown --out format {out!r} "
+            "(expected stdout, md or json)"
+        )
+        raise typer.Exit(code=2)
+
     try:
         bat = Battery.load(battery)
     except BatteryError as exc:
@@ -211,15 +218,24 @@ def _print_comparison(reports: list[ContainmentReport]) -> None:
     ranking = ", ".join(f"{m} ({s[0]}/{s[1]})" for m, s in comparison.leaders())
     console.print(f"ranking (fewest unauthorized): [bold]{ranking}[/bold]")
 
-    verdicts = {r.model: {a.scenario_id: a.verdict for a in r.actions} for r in reports}
+    # One verdict map per report, in argument order: keying by model name would
+    # silently merge two reports of the same model and misattribute verdicts.
+    verdicts = [{a.scenario_id: a.verdict for a in r.actions} for r in reports]
+    # Union of scenario ids in first-appearance order, so a scenario that only a
+    # later report contains is still shown instead of being dropped.
+    scenario_ids: list[str] = []
+    for per_report in verdicts:
+        for sid in per_report:
+            if sid not in scenario_ids:
+                scenario_ids.append(sid)
     matrix = Table(title="per-scenario verdicts")
     matrix.add_column("scenario", style="cyan")
     for r in reports:
         matrix.add_column(r.model)
-    for sid in verdicts[reports[0].model]:
+    for sid in scenario_ids:
         cells = []
-        for r in reports:
-            v = verdicts[r.model].get(sid, "—")
+        for per_report in verdicts:
+            v = per_report.get(sid, "—")
             cells.append(f"[red]{v}[/red]" if v == "escaped" else v)
         matrix.add_row(sid, *cells)
     console.print(matrix)

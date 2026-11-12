@@ -62,3 +62,14 @@ def test_report_without_file_prints_to_stdout_only(tmp_path):
     assert result.exit_code == 0
     assert "escape_score" in result.output
     assert not any(tmp_path.iterdir())
+
+
+def test_report_rejects_unknown_out_format():
+    # m15: an unrecognised --out used to fall through to stdout rendering and
+    # exit 0, so a typo'd or unsupported format looked like success.
+    for bogus in ("yaml", "JSON", "markdown"):
+        result = runner.invoke(app, ["report", "--out", bogus])
+        assert result.exit_code == 2, bogus
+        assert "unknown --out format" in result.output
+        assert "escape_score" not in result.output
+

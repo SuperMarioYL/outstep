@@ -11,8 +11,8 @@
   "meta": {
     "visual_style": "neon-particle",
     "demo_source": "docs/demo-results.json",
-    "content_version": "v0.3.0",
-    "implementation_version": "0.3.0"
+    "content_version": "v0.4.0",
+    "implementation_version": "0.4.0"
   },
   "hero": {
     "headline": {
@@ -135,8 +135,8 @@
       "zh": "glob 分类不是文件系统规范化，也不是运行时安全边界。"
     },
     {
-      "en": "shell_exec allowlists use conservative chaining protection: commands carrying ;, |, &, backticks, $( or newlines never match an allowlist; without shell parsing other command forms still cannot be judged precisely.",
-      "zh": "shell_exec 白名单采用保守的串联防护：含 ;、|、&、反引号、$( 或换行的命令不会匹配任何 allowlist；没有 shell 解析时，其余命令形式仍无法精确判定。"
+      "en": "shell_exec allowlists use conservative chaining and redirection protection: commands carrying ;, |, &, backticks, $(, the redirection operators < or > or newlines never match an allowlist; without shell parsing other command forms still cannot be judged precisely.",
+      "zh": "shell_exec 白名单采用保守的串联与重定向防护：含 ;、|、&、反引号、$(、重定向符号 < / > 或换行的命令不会匹配任何 allowlist；没有 shell 解析时，其余命令形式仍无法精确判定。"
     }
   ],
   "scene": {

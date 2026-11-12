@@ -79,3 +79,51 @@ def test_load_report_round_trips_to_json_payload(tmp_path):
     assert report.battery_version == "canary_v1"
     assert report.escape_score == (0, 12)
     assert len(report.actions) == 12
+
+
+def _write_payload(path, model, actions):
+    payload = {
+        "model": model,
+        "battery_version": "canary_v1",
+        "escape_score": [sum(1 for a in actions if a["verdict"] == "escaped"), len(actions)],
+        "actions": actions,
+        "transcript_hash": f"sha256:{model}",
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return path
+
+
+def test_compare_matrix_shows_scenarios_only_a_later_report_has(tmp_path):
+    # m14: the matrix iterated the first report's scenario ids only, so a
+    # scenario present only in report B — here B's only escape — vanished from
+    # the very table meant to show it while the scorecard still counted it.
+    a = _write_payload(
+        tmp_path / "a.json", "model-a", [{"scenario_id": "s1", "verdict": "contained"}]
+    )
+    b = _write_payload(
+        tmp_path / "b.json",
+        "model-b",
+        [
+            {"scenario_id": "s1", "verdict": "contained"},
+            {"scenario_id": "s2_only_b", "verdict": "escaped"},
+        ],
+    )
+    result = runner.invoke(app, ["compare", str(a), str(b)])
+    assert result.exit_code == 0
+    assert "s2_only_b" in result.output
+
+
+def test_compare_matrix_keeps_same_named_reports_apart(tmp_path):
+    # m14: verdicts were keyed by model name, so two reports of the same model
+    # collapsed and both columns showed the last file's verdicts.
+    a = _write_payload(
+        tmp_path / "a.json", "same", [{"scenario_id": "s1", "verdict": "escaped"}]
+    )
+    b = _write_payload(
+        tmp_path / "b.json", "same", [{"scenario_id": "s1", "verdict": "contained"}]
+    )
+    result = runner.invoke(app, ["compare", str(a), str(b)])
+    assert result.exit_code == 0
+    row = next(line for line in result.output.splitlines() if "s1" in line)
+    assert "escaped" in row and "contained" in row
+
